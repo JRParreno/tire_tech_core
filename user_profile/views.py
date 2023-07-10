@@ -1,17 +1,8 @@
-import json
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.utils.decorators import method_decorator
-from django.views.decorators.debug import sensitive_post_parameters
-from oauth2_provider.models import get_access_token_model
-from oauth2_provider.signals import app_authorized
-from oauth2_provider.views.base import TokenView
 from user_profile.models import UserProfile
 from rest_framework import generics, permissions, response, status
 from django.contrib.auth.models import User
 from django.conf import settings
 from rest_framework.response import Response
-from django.template.loader import get_template
 import re
 from oauth2_provider.models import (
     Application,
@@ -23,11 +14,8 @@ from datetime import (
     timedelta
 )
 from django.utils.crypto import get_random_string
-import random
 from django.conf import settings
-
 from user_profile.models import UserProfile
-from user_profile.utils import Util
 from tire_tech_core import settings
 from .serializers import ChangePasswordSerializer, ProfileSerializer, RegisterSerializer
 
@@ -141,12 +129,8 @@ class ProfileView(generics.RetrieveUpdateAPIView):
                 "lastName": user.last_name,
                 "email": user.email,
                 "address": user_profile.address,
-                "profilePhoto": request.build_absolute_uri(user_profile.profile_photo.url) if user_profile.profile_photo else None,
                 "contactNumber": user_profile.contact_number,
-                "isVerified": user_profile.is_verified,
-                "otpVerified": user_profile.otp_verified,
-                "frontIdPhoto": request.build_absolute_uri(user_profile.front_photo.url) if user_profile.front_photo else None,
-                "backIdPhoto": request.build_absolute_uri(user_profile.back_photo.url) if user_profile.back_photo else None,
+                "gender": user_profile.gender
             }
 
             return response.Response(data, status=status.HTTP_200_OK)

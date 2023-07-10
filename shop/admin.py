@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Shop, ServiceOffer, ServiceInfo, ShopCategory, ShopPhotos
+from .models import Shop, ServiceOffer, ServiceInfo, ShopCategory, ShopPhotos, ProductOffer, ProductInfo
 
 
 class ShopPhotoTabularInLine(admin.TabularInline):
@@ -24,10 +24,9 @@ class ShopAdminView(admin.ModelAdmin):
 
 @admin.register(ServiceOffer)
 class ServiceOfferAdminView(admin.ModelAdmin):
-    list_display = ('id', 'service_name', 'is_available')
+    list_display = ('id', 'service_name')
     ordering = ('service_name',)
     search_fields = ('service_name',)
-    list_filter = ('is_available', )
 
     def get_queryset(self, request):
         qs = super(ServiceOfferAdminView, self).get_queryset(request)
@@ -59,6 +58,31 @@ class ShopCategorypAdminView(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(ShopCategorypAdminView, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user_profile__user=request.user)
+    
+
+@admin.register(ProductInfo)
+class ProductInfoAdminView(admin.ModelAdmin):
+    list_display = ('id', 'service_description', 'walk_in_description')
+    ordering = ('service_description',)
+    search_fields = ('service_description',)
+
+    def get_queryset(self, request):
+        qs = super(ProductInfoAdminView, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user_profile__user=request.user)
+
+@admin.register(ProductOffer)
+class ProductOfferAdminView(admin.ModelAdmin):
+    list_display = ('id', 'product_name',)
+    ordering = ('product_name',)
+    search_fields = ('product_name',)
+
+    def get_queryset(self, request):
+        qs = super(ProductOfferAdminView, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
         return qs.filter(user_profile__user=request.user)

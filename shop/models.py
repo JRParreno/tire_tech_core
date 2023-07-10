@@ -16,10 +16,9 @@ class ShopCategory(models.Model):
 
 class ServiceOffer(models.Model):
     service_name = models.CharField(max_length=255)
-    is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.service_name} - {self.is_available}'
+        return self.service_name
 
     class Meta:
         managed = True
@@ -42,10 +41,9 @@ class ServiceInfo(models.Model):
 
 class ProductOffer(models.Model):
     product_name = models.CharField(max_length=255)
-    is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.service_name} - {self.is_available}'
+        return self.service_name
 
     class Meta:
         managed = True
