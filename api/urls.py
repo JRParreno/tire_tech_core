@@ -1,9 +1,9 @@
 from django.urls import path
 
-from user_profile.views import (ProfileView, 
+from user_profile.views import (ProfileView,
                                 RegisterView, ChangePasswordView,)
 
-from shop.views import ServicesOfferListView
+from shop.views import ServicesOfferListView, FindShopServiceListView
 
 app_name = 'api'
 
@@ -13,4 +13,6 @@ urlpatterns = [
     path('change-password', ChangePasswordView.as_view(), name='change-password'),
 
     path('services-offer', ServicesOfferListView.as_view(), name='services-offer'),
+    path('find-services-shop', FindShopServiceListView.as_view(),
+         name='find-services-shop'),
 ]
