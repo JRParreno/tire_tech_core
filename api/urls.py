@@ -13,6 +13,6 @@ urlpatterns = [
     path('change-password', ChangePasswordView.as_view(), name='change-password'),
 
     path('services-offer', ServicesOfferListView.as_view(), name='services-offer'),
-    path('find-services-shop', FindShopServiceListView.as_view(),
-         name='find-services-shop'),
+    path('find-shop', FindShopServiceListView.as_view(),
+         name='find-shop'),
 ]

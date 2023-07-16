@@ -58,10 +58,12 @@ class Shop(models.Model):
     walk_in_service_description = models.CharField(max_length=255)
     services = models.ManyToManyField(
         ServiceOffer, related_name='services_offer')
-    product_description = models.CharField(max_length=255, null=True, blank=True)
-    walk_in_product_description = models.CharField(max_length=255, null=True, blank=True)
+    product_description = models.CharField(
+        max_length=255, null=True, blank=True)
+    walk_in_product_description = models.CharField(
+        max_length=255, null=True, blank=True)
     products = models.ManyToManyField(
-        ProductOffer, related_name='products_offer', null=True, blank=True)
+        ProductOffer, related_name='products_offer', blank=True)
 
     def __str__(self):
         return f'{self.shop_name}- {self.address_name}'
