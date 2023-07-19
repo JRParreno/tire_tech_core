@@ -35,6 +35,8 @@ class ShopCategorySerializer(serializers.ModelSerializer):
 class ShopServiceSerializer(serializers.ModelSerializer):
     shop_category = ShopCategorySerializer(read_only=True, many=True)
     vehicle_types = VehicleSerializer(read_only=True, many=True)
+    products = ProductOfferSerializer(read_only=True, many=True)
+    services = ServiceOfferSerializer(read_only=True, many=True)
 
     class Meta:
         model = Shop
@@ -42,6 +44,9 @@ class ShopServiceSerializer(serializers.ModelSerializer):
                   'open_time', 'close_time', 'special_offers',
                   'address_name', 'longitude', 'latitude',
                   'vehicle_types', 'shop_category',
+                  'service_description', 'walk_in_service_description',
+                  'services', 'product_description', 'walk_in_product_description',
+                  'products'
                   ]
 
     def __init__(self, *args, **kwargs):
