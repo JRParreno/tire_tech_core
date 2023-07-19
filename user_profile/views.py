@@ -19,6 +19,7 @@ from user_profile.models import UserProfile
 from tire_tech_core import settings
 from .serializers import ChangePasswordSerializer, ProfileSerializer, RegisterSerializer
 
+
 class RegisterView(generics.CreateAPIView):
     permission_classes = []
     queryset = User.objects.all()
@@ -100,7 +101,6 @@ class RegisterView(generics.CreateAPIView):
                                    contact_number=mobile_number, gender=gender,
                                    )
 
-
         data = {
             "email": user.email,
         }
@@ -109,7 +109,8 @@ class RegisterView(generics.CreateAPIView):
             data=data,
             status=status.HTTP_200_OK
         )
-    
+
+
 class ProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProfileSerializer
@@ -183,14 +184,9 @@ class ProfileView(generics.RetrieveUpdateAPIView):
             "lastName": user.last_name,
             "email": user.email,
             "address": user_profile.address,
-            "profilePhoto": request.build_absolute_uri(user_profile.profile_photo.url) if user_profile.profile_photo else None,
             "contactNumber": user_profile.contact_number,
-            "isVerified": user_profile.is_verified,
-            "otpVerified": user_profile.otp_verified,
-            "frontIdPhoto": request.build_absolute_uri(user_profile.front_photo.url) if user_profile.front_photo else None,
-            "backIdPhoto": request.build_absolute_uri(user_profile.back_photo.url) if user_profile.back_photo else None,
+            "gender": user_profile.gender
         }
-
         return response.Response(data, status=status.HTTP_200_OK)
 
     def get_serializer_context(self):
