@@ -1,21 +1,12 @@
 from django.contrib import admin
 from .models import Shop, ServiceOffer, ShopCategory, ShopPhotos, ProductOffer
 from nested_admin.nested import NestedTabularInline, NestedStackedInline
-
-
-# class ServiceOfferTabularInLine(admin.TabularInline):
-#     model = ServiceOffer
-#     fields = ('service_name',)
+from user_profile.models import UserProfile
 
 
 class ShopPhotoTabularInLine(admin.TabularInline):
     model = ShopPhotos
     fields = ('shop', 'image')
-
-
-# class ProductOfferTabularInLine(admin.TabularInline):
-#     model = ProductOffer
-#     fields = ('product_name',)
 
 
 @admin.register(Shop)
@@ -33,6 +24,11 @@ class ShopAdminView(admin.ModelAdmin):
         if request.user.is_superuser:
             return qs
         return qs.filter(user_profile__user=request.user)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "user_profile":
+            kwargs["queryset"] = UserProfile.objects.filter(user=request.user)
+        return super(ShopAdminView, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(ServiceOffer)

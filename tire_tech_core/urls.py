@@ -25,6 +25,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
+from .views import TokenViewWithUserId, registerShop
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -48,7 +49,8 @@ urlpatterns = [
          cache_timeout=0), name='schema-swagger-ui'),
     path('api-auth/', include('rest_framework.urls')),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    # path('o/login/', TokenViewWithUserId.as_view(), name='token'),
+    path('register', registerShop, name='register-shop'),
+    path('o/login/', TokenViewWithUserId.as_view(), name='token'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls', namespace='api')),
 ]
