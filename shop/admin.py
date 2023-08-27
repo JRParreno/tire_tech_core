@@ -25,10 +25,10 @@ class ShopAdminView(admin.ModelAdmin):
             return qs
         return qs.filter(user_profile__user=request.user)
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "user_profile":
-            kwargs["queryset"] = UserProfile.objects.filter(user=request.user)
-        return super(ShopAdminView, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    #     if db_field.name == "user_profile":
+    #         kwargs["queryset"] = UserProfile.objects.filter(user=request.user)
+    #     return super(ShopAdminView, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(ServiceOffer)

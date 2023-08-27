@@ -56,7 +56,7 @@ def registerShop(request):
                 "error_message": "Mobile number already exists"
             }
 
-        if data is not None:
+        if data is None:
 
             user = User.objects.create(
                 username=email, email=email, first_name=first_name, last_name=last_name)
