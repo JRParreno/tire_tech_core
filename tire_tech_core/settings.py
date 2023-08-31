@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'gunicorn',
     'corsheaders',
+    'django_admin_geomap',
 ]
 
 MIDDLEWARE = [

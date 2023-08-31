@@ -1,6 +1,7 @@
 from django.db import models
 from user_profile.models import UserProfile
 from vehicle.models import Vehicle
+from django_admin_geomap import GeoItem
 
 
 class ProductOffer(models.Model):
@@ -39,7 +40,8 @@ class ShopCategory(models.Model):
         verbose_name_plural = 'Shop Categories'
 
 
-class Shop(models.Model):
+class Shop(models.Model, GeoItem):
+
     user_profile = models.OneToOneField(
         UserProfile, related_name='user_shop', on_delete=models.CASCADE)
     shop_name = models.CharField(max_length=255)
@@ -67,6 +69,26 @@ class Shop(models.Model):
 
     def __str__(self):
         return f'{self.shop_name}- {self.address_name}'
+
+    @property
+    def geomap_longitude(self):
+        return '' if self.longitude is None else str(self.longitude)
+
+    @property
+    def geomap_latitude(self):
+        return '' if self.latitude is None else str(self.latitude)
+
+    @property
+    def geomap_popup_view(self):
+        return "<strong>{}</strong>".format(str(self))
+
+    @property
+    def geomap_popup_edit(self):
+        return self.geomap_popup_view
+
+    @property
+    def geomap_popup_common(self):
+        return self.geomap_popup_view
 
     class Meta:
         managed = True

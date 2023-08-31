@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import Shop, ServiceOffer, ShopCategory, ShopPhotos, ProductOffer
 from nested_admin.nested import NestedTabularInline, NestedStackedInline
 from user_profile.models import UserProfile
+from django_admin_geomap import ModelAdmin
 
 
 class ShopPhotoTabularInLine(admin.TabularInline):
@@ -9,9 +10,12 @@ class ShopPhotoTabularInLine(admin.TabularInline):
     fields = ('shop', 'image')
 
 
-@admin.register(Shop)
-class ShopAdminView(admin.ModelAdmin):
-    inlines = [ShopPhotoTabularInLine,]
+class Admin(ModelAdmin):
+    geomap_field_longitude = "id_longitude"
+    geomap_field_latitude = "id_latitude"
+    geomap_item_zoom = "15"
+    geomap_show_map_on_list = False
+    inlines = [ShopPhotoTabularInLine]
     list_display = ('id', 'shop_name',
                     'open_time', 'close_time',)
     ordering = ('shop_name',)
@@ -20,15 +24,13 @@ class ShopAdminView(admin.ModelAdmin):
                          'products', 'services')
 
     def get_queryset(self, request):
-        qs = super(ShopAdminView, self).get_queryset(request)
+        qs = super(Admin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
         return qs.filter(user_profile__user=request.user)
 
-    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    #     if db_field.name == "user_profile":
-    #         kwargs["queryset"] = UserProfile.objects.filter(user=request.user)
-    #     return super(ShopAdminView, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+admin.site.register(Shop, Admin)
 
 
 @admin.register(ServiceOffer)
