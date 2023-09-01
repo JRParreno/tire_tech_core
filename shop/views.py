@@ -1,9 +1,10 @@
 from rest_framework import generics, permissions, response, status
-from .serializers import ServiceOfferSerializer, ShopServiceSerializer
-from .models import ServiceOffer, Shop
+from .serializers import ServiceOfferSerializer, ShopServiceSerializer, ShopReviewSerializer, ShopReviewRateSerializer
+from .models import ServiceOffer, Shop, ShopReview
 from .paginate import ExtraSmallResultsSetPagination
 from django.db.models import Q
 from .distance_formula import get_distance
+from rest_framework.decorators import api_view, permission_classes
 
 
 class ServicesOfferListView(generics.ListAPIView):
@@ -47,3 +48,43 @@ class FindShopServiceListView(generics.ListAPIView):
                         query_set.append(temp_value)
 
         return query_set
+
+
+class ShopReviewListView(generics.ListCreateAPIView):
+    serializer_class = ShopReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = ShopReview.objects.all().order_by('date_updated')
+    pagination_class = ExtraSmallResultsSetPagination
+
+    def get_queryset(self):
+        shop_pk = self.kwargs['pk']
+        queryset = ShopReview.objects.filter(
+            shop__pk=shop_pk).order_by('date_updated')
+
+        return queryset
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def shop_review_total_rate(request, pk):
+    try:
+        shop = Shop.objects.get(pk=pk)
+    except Shop.DoesNotExist:
+        return response.Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        temp_reviews = ShopReview.objects.filter(shop=shop)
+        total_rate = 0
+
+        check_user_review = temp_reviews.filter(
+            user_profile__user__pk=request.user.pk)
+
+        for review in temp_reviews:
+            total_rate += review.rate
+        data = {
+            "rate":  total_rate / temp_reviews.count() if total_rate > 0 else 0,
+            "comment_id": check_user_review.first().pk if check_user_review.exists() else None
+        }
+
+        serializer = ShopReviewRateSerializer(data)
+        return response.Response(serializer.data)

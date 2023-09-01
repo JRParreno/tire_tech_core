@@ -100,3 +100,22 @@ class ShopPhotos(models.Model):
         Shop, related_name='shop_photos', on_delete=models.CASCADE)
     image = models.ImageField(
         upload_to='shop-pictures/', blank=True, null=True)
+
+
+class ShopReview(models.Model):
+    shop = models.ForeignKey(
+        Shop, related_name='shop_review', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(
+        UserProfile, related_name='user_shop_review', on_delete=models.CASCADE)
+    description = models.CharField(max_length=255, null=True, blank=True)
+    rate = models.IntegerField(default=0)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.user_profile.user}'
+
+    class Meta:
+        managed = True
+        verbose_name = 'ShopReview'
+        verbose_name_plural = 'ShopReviews'

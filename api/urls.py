@@ -3,7 +3,7 @@ from django.urls import path
 from user_profile.views import (ProfileView,
                                 RegisterView, ChangePasswordView,)
 
-from shop.views import ServicesOfferListView, FindShopServiceListView
+from shop.views import ServicesOfferListView, FindShopServiceListView, ShopReviewListView, shop_review_total_rate
 
 app_name = 'api'
 
@@ -15,4 +15,9 @@ urlpatterns = [
     path('services-offer', ServicesOfferListView.as_view(), name='services-offer'),
     path('find-shop', FindShopServiceListView.as_view(),
          name='find-shop'),
+    path('shop-review-list/<pk>', ShopReviewListView.as_view(),
+         name='shop-review-list'),
+    path('shop-review-total-rate/<pk>', shop_review_total_rate,
+         name='shop-total-rate'),
+
 ]

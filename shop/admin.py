@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import Shop, ServiceOffer, ShopCategory, ShopPhotos, ProductOffer
-from nested_admin.nested import NestedTabularInline, NestedStackedInline
-from user_profile.models import UserProfile
+from .models import Shop, ServiceOffer, ShopCategory, ShopPhotos, ProductOffer, ShopReview
 from django_admin_geomap import ModelAdmin
+
+
+admin.site.register(ShopReview)
 
 
 class ShopPhotoTabularInLine(admin.TabularInline):

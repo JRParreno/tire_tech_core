@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import (ServiceOffer, Shop, ShopPhotos, ShopCategory, Vehicle,
-                     ProductOffer
+                     ProductOffer, ShopReview
                      )
 
 
@@ -70,3 +70,24 @@ class ShopServiceSerializer(serializers.ModelSerializer):
                     self.request.build_absolute_uri(shop_photo.image.path))
             data['shop_photos'] = shop_object_photos
         return data
+
+
+class ShopReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ShopReview
+        fields = ['pk', 'shop', 'user_profile',
+                  'description', 'rate']
+
+    def __init__(self, *args, **kwargs):
+        # init context and request
+        context = kwargs.get('context', {})
+        self.request = context.get('request', None)
+        self.kwargs = context.get("kwargs", None)
+
+        super(ShopReviewSerializer, self).__init__(*args, **kwargs)
+
+
+class ShopReviewRateSerializer(serializers.Serializer):
+    rate = serializers.FloatField(read_only=True)
+    comment_id = serializers.CharField(read_only=True)
