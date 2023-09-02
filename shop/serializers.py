@@ -75,12 +75,13 @@ class ShopServiceSerializer(serializers.ModelSerializer):
 
 
 class ShopReviewSerializer(serializers.ModelSerializer):
-    user_profile = ProfileSerializer()
+    user_profile = ProfileSerializer(read_only=True)
+    shop_pk = serializers.CharField(write_only=True)
 
     class Meta:
         model = ShopReview
         fields = ['pk', 'shop', 'user_profile',
-                  'description', 'rate']
+                  'description', 'rate', 'shop_pk']
 
     def __init__(self, *args, **kwargs):
         # init context and request
@@ -93,4 +94,6 @@ class ShopReviewSerializer(serializers.ModelSerializer):
 
 class ShopReviewRateSerializer(serializers.Serializer):
     rate = serializers.FloatField(read_only=True)
-    comment_id = serializers.CharField(read_only=True)
+    user_review = ShopReviewSerializer(read_only=True)
+    is_owner = serializers.BooleanField(read_only=True)
+    shop_name = serializers.CharField(read_only=True)

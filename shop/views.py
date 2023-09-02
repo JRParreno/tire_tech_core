@@ -1,4 +1,6 @@
 from rest_framework import generics, permissions, response, status
+
+from user_profile.models import UserProfile
 from .serializers import ServiceOfferSerializer, ShopServiceSerializer, ShopReviewSerializer, ShopReviewRateSerializer
 from .models import ServiceOffer, Shop, ShopReview
 from .paginate import ExtraSmallResultsSetPagination
@@ -58,10 +60,46 @@ class ShopReviewListView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         shop_pk = self.kwargs['pk']
+        user = self.request.user
+
         queryset = ShopReview.objects.filter(
-            shop__pk=shop_pk).order_by('date_updated')
+            shop__pk=shop_pk).exclude(user_profile__user__pk=user.pk).order_by('date_updated')
 
         return queryset
+
+    def post(self, request, *args, **kwargs):
+        shop_pk = request.data.get('shop_pk')
+        description = request.data.get('description')
+        rate = request.data.get('rate')
+
+        try:
+            shop = Shop.objects.get(pk=shop_pk)
+            user_profile = UserProfile.objects.get(
+                user__pk=self.request.user.pk)
+        except Shop.DoesNotExist or user_profile.DoesNotExist:
+            return response.Response(status=status.HTTP_404_NOT_FOUND)
+
+        shop_reviews = ShopReview.objects.filter(
+            shop=shop, user_profile=user_profile)
+
+        if shop_reviews.exists():
+            exist_review = shop_reviews.first()
+            exist_review.rate = rate
+            exist_review.description = description
+            exist_review.save()
+            serializer_data = ShopReviewSerializer(exist_review)
+            return response.Response(serializer_data.data, status=status.HTTP_200_OK)
+        else:
+            shop_review = ShopReview.objects.create(
+                shop=shop,
+                user_profile=user_profile,
+                description=description,
+                rate=rate
+            )
+
+        shop_review.save()
+        serializer_data = ShopReviewSerializer(shop_review)
+        return response.Response(serializer_data.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -75,15 +113,19 @@ def shop_review_total_rate(request, pk):
     if request.method == 'GET':
         temp_reviews = ShopReview.objects.filter(shop=shop)
         total_rate = 0
-
+        is_owner = False
         check_user_review = temp_reviews.filter(
             user_profile__user__pk=request.user.pk)
+
+        is_owner = shop.user_profile.user.pk == request.user.pk
 
         for review in temp_reviews:
             total_rate += review.rate
         data = {
             "rate":  total_rate / temp_reviews.count() if total_rate > 0 else 0,
-            "comment_id": check_user_review.first().pk if check_user_review.exists() else None
+            "user_review": check_user_review.first() if check_user_review.exists() else None,
+            "is_owner": is_owner,
+            "shop_name": shop.shop_name
         }
 
         serializer = ShopReviewRateSerializer(data)
