@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from user_profile.serializers import ProfileSerializer
 from .models import (ServiceOffer, Shop, ShopPhotos, ShopCategory, Vehicle,
                      ProductOffer, ShopReview
                      )
@@ -73,6 +75,7 @@ class ShopServiceSerializer(serializers.ModelSerializer):
 
 
 class ShopReviewSerializer(serializers.ModelSerializer):
+    user_profile = ProfileSerializer()
 
     class Meta:
         model = ShopReview
