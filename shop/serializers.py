@@ -69,7 +69,7 @@ class ShopServiceSerializer(serializers.ModelSerializer):
             shop_object_photos = []
             for shop_photo in shop_photos:
                 shop_object_photos.append(
-                    self.request.build_absolute_uri(shop_photo.image.path))
+                    self.request.build_absolute_uri(shop_photo.image.url))
             data['shop_photos'] = shop_object_photos
         return data
 
