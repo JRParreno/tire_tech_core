@@ -64,6 +64,7 @@ class ShopReviewListView(generics.ListCreateAPIView):
 
         queryset = ShopReview.objects.filter(
             shop__pk=shop_pk).exclude(user_profile__user__pk=user.pk).order_by('date_updated')
+        print(queryset)
 
         return queryset
 

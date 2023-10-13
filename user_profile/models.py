@@ -23,6 +23,8 @@ class UserProfile(models.Model):
         max_length=10, choices=GENDER_CHOICES, default=NA)
     contact_number = models.CharField(max_length=25)
     address = models.CharField(max_length=255)
+    profile_photo = models.ImageField(
+        upload_to='images/profiles/', blank=True, null=True)
 
     objects = ProfileManager()
 

@@ -17,7 +17,7 @@ from django.utils.crypto import get_random_string
 from django.conf import settings
 from user_profile.models import UserProfile
 from tire_tech_core import settings
-from .serializers import ChangePasswordSerializer, ProfileSerializer, RegisterSerializer
+from .serializers import ChangePasswordSerializer, ProfileSerializer, RegisterSerializer, UploadPhotoSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -131,7 +131,9 @@ class ProfileView(generics.RetrieveUpdateAPIView):
                 "email": user.email,
                 "address": user_profile.address,
                 "contactNumber": user_profile.contact_number,
-                "gender": user_profile.gender
+                "gender": user_profile.gender,
+                "profilePhoto": request.build_absolute_uri(user_profile.profile_photo.url) if user_profile.profile_photo else None,
+
             }
 
             return response.Response(data, status=status.HTTP_200_OK)
@@ -241,3 +243,9 @@ class ChangePasswordView(generics.UpdateAPIView):
             return Response(response)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UploadPhotoView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UploadPhotoSerializer
+    queryset = UserProfile.objects.all()

@@ -1,6 +1,9 @@
+from django import utils
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import UserProfile
+from django.core.files.base import ContentFile
+import base64
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,11 +66,11 @@ class ProfileSerializer(serializers.Serializer):
     user = UserSerializer()
     address = serializers.CharField()
     contact_number = serializers.CharField()
+    profile_photo = serializers.CharField()
 
     class Meta:
         model = UserProfile
-        fields = ('user', 'is_verified',
-                  'otp_verified', 'address',
+        fields = ('user',  'address',
                   'contact_number',
                   'profile_photo', 'profile_photo_image_64')
 
@@ -112,6 +115,22 @@ class ProfileSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
 
+        def extract_file(base64_string, image_type):
+            img_format, img_str = base64_string.split(';base64,')
+            ext = img_format.split('/')[-1]
+            return f"{instance}-{utils.get_random_code()}-{image_type}.{ext}", ContentFile(base64.b64decode(img_str))
+
+        profile_photo_image_64 = validated_data.get(
+            'profile_photo_image_64', None)
+
+        if profile_photo_image_64:
+            filename, data = extract_file(
+                profile_photo_image_64, 'profile_picture')
+            instance.profile_picture.save(filename, data, save=True)
+
+        instance.contact_number = validated_data.pop('contact_number')
+        instance.address = validated_data.pop('address')
+
         instance.contact_number = validated_data.pop('contact_number')
         instance.address = validated_data.pop('address')
 
@@ -140,3 +159,18 @@ class UploadIDPhotoSerializer(serializers.ModelSerializer):
         self.kwargs = context.get("kwargs", None)
 
         super(UploadIDPhotoSerializer, self).__init__(*args, **kwargs)
+
+
+class UploadPhotoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ['profile_photo',]
+
+    def __init__(self, *args, **kwargs):
+        # init context and request
+        context = kwargs.get('context', {})
+        self.request = context.get('request', None)
+        self.kwargs = context.get("kwargs", None)
+
+        super(UploadPhotoSerializer, self).__init__(*args, **kwargs)
