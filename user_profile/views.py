@@ -17,7 +17,16 @@ from django.utils.crypto import get_random_string
 from django.conf import settings
 from user_profile.models import UserProfile
 from tire_tech_core import settings
-from .serializers import ChangePasswordSerializer, ProfileSerializer, RegisterSerializer, UploadPhotoSerializer
+from .serializers import (ChangePasswordSerializer, ProfileSerializer, RegisterSerializer,
+                          UploadPhotoSerializer, ResetPasswordEmailRequestSerializer)
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import smart_bytes
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.urls import reverse
+from django.template.loader import get_template
+from .email import Util
 
 
 class RegisterView(generics.CreateAPIView):
@@ -249,3 +258,45 @@ class UploadPhotoView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UploadPhotoSerializer
     queryset = UserProfile.objects.all()
+
+
+class RequestPasswordResetEmail(generics.CreateAPIView):
+    serializer_class = ResetPasswordEmailRequestSerializer
+    permission_classes = []
+
+    def post(self, request):
+        email_address = request.data.get('email_address', '')
+        check_identity = User.objects.filter(email__exact=email_address)
+        if check_identity.exists():
+            identity = check_identity.first()
+            uidb64 = urlsafe_base64_encode(smart_bytes(identity.id))
+            token = PasswordResetTokenGenerator().make_token(identity)
+
+            relative_link = reverse(
+                'api:password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
+
+            current_site = get_current_site(
+                request=request).domain
+            abs_url: str = f"https://{current_site}{relative_link}"
+
+            context_email = {
+                "url": abs_url,
+                "full_name": f"{identity.first_name} {identity.last_name}"
+            }
+            message = get_template(
+                'forgot_password/index.html').render(context_email)
+
+            context = {
+                'email_body': message,
+                'to_email': identity.email,
+                'email_subject': 'Reset your password'
+            }
+
+            Util.send_email(context)
+        else:
+            return response.Response({'error_message': 'Email not found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        return response.Response(
+            {'success': 'We have sent you a link to reset your password'},
+            status=status.HTTP_200_OK
+        )

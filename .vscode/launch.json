@@ -14,7 +14,12 @@
                 "192.168.1.2:8000"
             ],
             "django": true,
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "EMAIL_HOST_USER": "tiretech202@gmail.com",
+                "DEFAULT_FROM_EMAIL": "tiretech202@gmail.com",
+                "EMAIL_HOST_PASSWORD": "fghrxxdkrpmkmkpm",
+            }
         }
     ]
 }
