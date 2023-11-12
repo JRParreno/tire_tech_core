@@ -68,8 +68,9 @@ class ShopServiceSerializer(serializers.ModelSerializer):
             shop_photos = ShopPhotos.objects.filter(shop__pk=shop)
             shop_object_photos = []
             for shop_photo in shop_photos:
-                shop_object_photos.append(
-                    self.request.build_absolute_uri(shop_photo.image.url))
+                if shop_photo.image.url:
+                    shop_object_photos.append(
+                        self.request.build_absolute_uri(shop_photo.image.url))
             data['shop_photos'] = shop_object_photos
         return data
 
